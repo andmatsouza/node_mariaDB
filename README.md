@@ -35,3 +35,6 @@ Sequelize (https://sequelize.org/docs/v6/getting-started/) é uma biblioteca Jav
 
 Instalar o drive do banco de dados
 ### npm install --save mariadb
+
+Instalar o módulo para criptografar a senha
+### npm install --save bcryptjs
