@@ -9,7 +9,26 @@ app.use(express.json());
 
 //rotas que a nossa api vai disponibilizar para um cliente(browser, aplicativo, sistema, etc..)
 
-//1ª rota - listar todos os usúarios na tabela users
+//1ª rota - cadastrar um usúario na tabela users
+app.post("/user", async (req, res) => {
+  const { name, email} = req.body;
+
+await User.create(req.body).
+then(() => {
+  return res.json({
+    erro: false,
+    mensagem: "Usuário cadastrado com sucesso!"   
+  });
+
+}).catch(() => {
+  return res.status(400).json({
+    erro: true,
+    mensagem: "Erro: Usuário não cadastrado com sucesso!"   
+  });
+})  
+});
+
+//2ª rota - listar todos os usúarios na tabela users
 app.get("/users", async (req, res) => {
 
   await User.findAll({
@@ -28,7 +47,7 @@ app.get("/users", async (req, res) => {
   });    
 });
 
-//2ª rota - listar um usúario pelo seu id na tabela users
+//3ª rota - listar um usúario pelo seu id na tabela users
 app.get("/user/:id", async (req, res) => {
   const { id } = req.params;
 
@@ -47,33 +66,22 @@ app.get("/user/:id", async (req, res) => {
   });
 });
 
-app.post("/user", async (req, res) => {
-  const { name, email} = req.body;
-
-await User.create(req.body).
-then(() => {
-  return res.json({
-    erro: false,
-    mensagem: "Usuário cadastrado com sucesso!"   
-  });
-
-}).catch(() => {
-  return res.status(400).json({
-    erro: true,
-    mensagem: "Erro: Usuário não cadastrado com sucesso!"   
-  });
-})
-
+//4ª rota - atualizar um usúario pelo seu id na tabela users
+app.put("/user", async (req, res) => {
+  const { id } = req.body;  
   
-});
+  await User.update(req.body, {where: {id}})
+  .then(() => {
+      return res.json({
+          erro: false,
+          mensagem: "Usuário editado com sucesso!"
+      });
 
-app.put("/usuario", (req, res) => {
-  const { id, nome, email} = req.body;
-  return res.json({
-    erro: false,
-    id,    
-    nome,
-    email
+  }).catch(() => {
+      return res.status(400).json({
+          erro: true,
+          mensagem: "Erro: Usuário não editado com sucesso!"
+      });
   });
 });
 
