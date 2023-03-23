@@ -1,5 +1,5 @@
 const express = require("express");
-const Usuario = require("./model/Usuario");
+const User = require("./model/User");
 
 const app = express();
 app.use(express.json());
@@ -25,7 +25,7 @@ app.get("/usuario/:id", (req, res) => {
 app.post("/user", async (req, res) => {
   const { name, email} = req.body;
 
-await Usuario.create(req.body).
+await User.create(req.body).
 then(() => {
   return res.json({
     erro: false,
