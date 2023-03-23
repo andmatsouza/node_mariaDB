@@ -9,7 +9,7 @@ app.use(express.json());
 
 //rotas que a nossa api vai disponibilizar para um cliente(browser, aplicativo, sistema, etc..)
 
-//1ª rota - listar todos os usúarios da tabela users
+//1ª rota - listar todos os usúarios na tabela users
 app.get("/users", async (req, res) => {
 
   await User.findAll({
@@ -28,13 +28,22 @@ app.get("/users", async (req, res) => {
   });    
 });
 
-app.get("/usuario/:id", (req, res) => {
+//2ª rota - listar um usúario pelo seu id na tabela users
+app.get("/user/:id", async (req, res) => {
   const { id } = req.params;
-  return res.json({
-    erro: false,
-    id,
-    name: "Anderson",
-    email: "andmatsou@gmail.com"
+
+  //await User.findAll({ where: { id: id } })
+  await User.findByPk(id)
+  .then((user) => {
+      return res.json({
+          erro: false,
+          user: user
+      });
+  }).catch(() => {
+      return res.status(400).json({
+          erro: true,
+          mensagem: "Erro: Nenhum usuário encontrado!"
+      });
   });
 });
 
