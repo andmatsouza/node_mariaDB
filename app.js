@@ -85,14 +85,26 @@ app.put("/user", async (req, res) => {
   });
 });
 
-app.delete("/usuario/:id", (req, res) => {
-  const { id } = req.params;
-  return res.json({
-    erro: false,
-    id,    
+//5ª rota - apagar um usúario pelo seu id na tabela users
+app.delete("/user/:id", async (req, res) => {
+  const { id } = req.params;    
+
+  await User.destroy({ where: {id}})
+  .then(() => {
+      return res.json({
+          erro: false,
+          mensagem: "Usuário apgado com sucesso!"
+      });
+  }).catch(() => {
+      return res.status(400).json({
+          erro: true,
+          mensagem: "Erro: Usuário não apgado com sucesso!"
+      });
   });
 });
 
+//inicia um servidor web na porta 3000 p acessar digite essa url 
+//http://localhost:3000 no navegador
 app.listen(3000, () => {
   console.log("Servidor iniciado na porta 3000: http://localhost:3000");
 });
