@@ -3,6 +3,9 @@ const express = require("express");
 //importamos a model user, objeto que vamos usar p manipular o banco de dados 
 const User = require("./model/User");
 
+//importamos o bcrypt p criptografar a senha
+const bcrypt = require('bcryptjs'); 
+
 
 const app = express();
 app.use(express.json());
@@ -11,9 +14,10 @@ app.use(express.json());
 
 //1ª rota - cadastrar um usúario na tabela users
 app.post("/user", async (req, res) => {
-  const { name, email} = req.body;
+  var dados = req.body;  
+  dados.password = await bcrypt.hash(dados.password, 8);
 
-await User.create(req.body).
+await User.create(dados).
 then(() => {
   return res.json({
     erro: false,
