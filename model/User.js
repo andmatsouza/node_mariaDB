@@ -17,11 +17,16 @@ const User = db.define('users', {
   email: {
     type: Sequelize.STRING,
     allowNull: false,
+  },
+  password: {
+      type: Sequelize.STRING
   }
 });
 
-//função do sequelize usada p sincronizar com o banco de dados
-User.sync();
+//função do sequelize usada p criar a tabela no banco de dados
+//User.sync();
+//Verificar se há alguma diferença na tabela, realiza a alteração
+User.sync({ alter: true });
 
 //exportamos a const User p usarmos em outros módulos
 module.exports = User;
