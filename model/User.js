@@ -26,7 +26,7 @@ const User = db.define('users', {
 //função do sequelize usada p criar a tabela no banco de dados
 //User.sync();
 //Verificar se há alguma diferença na tabela, realiza a alteração
-User.sync({ alter: true });
+//User.sync({ alter: true });
 
 //exportamos a const User p usarmos em outros módulos
 module.exports = User;
