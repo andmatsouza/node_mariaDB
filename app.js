@@ -36,7 +36,7 @@ then(() => {
 app.get("/users", async (req, res) => {
 
   await User.findAll({
-      attributes: ['id', 'name', 'email'], 
+      attributes: ['id', 'name', 'email', 'password'], 
       order: [['id', 'DESC']]})
   .then((users) => {
       return res.json({
