@@ -107,6 +107,27 @@ app.delete("/user/:id", async (req, res) => {
   });
 });
 
+//6ª rota - atualizar a senha do usúario na tabela users
+app.put("/user-senha", async (req, res) => {
+  const { id, password } = req.body;  
+
+  var senhaCrypt= await bcrypt.hash(password, 8);
+  
+  await User.update({password: senhaCrypt}, {where: {id}})
+  .then(() => {
+      return res.json({
+          erro: false,
+          mensagem: "Senha editada com sucesso!"
+      });
+
+  }).catch(() => {
+      return res.status(400).json({
+          erro: true,
+          mensagem: "Erro: Senha não editada com sucesso!"
+      });
+  });
+});
+
 //inicia um servidor web na porta 3000 p acessar digite essa url 
 //http://localhost:3000 no navegador
 app.listen(3000, () => {
