@@ -1,15 +1,31 @@
+//importamos o express p podermos criar as rotas
 const express = require("express");
+//importamos a model user, objeto que vamos usar p manipular o banco de dados 
 const User = require("./model/User");
+
 
 const app = express();
 app.use(express.json());
 
-app.get("/usuarios", (req, res) => {
-  return res.json({
-    erro: false,
-    name: "Anderson Mathias",
-    email: "andmatsou@gmail.com"
-  });
+//rotas que a nossa api vai disponibilizar para um cliente(browser, aplicativo, sistema, etc..)
+
+//1ª rota - listar todos os usúarios da tabela users
+app.get("/users", async (req, res) => {
+
+  await User.findAll({
+      attributes: ['id', 'name', 'email'], 
+      order: [['id', 'DESC']]})
+  .then((users) => {
+      return res.json({
+          erro: false,
+          users
+      });
+  }).catch(() => {
+      return res.status(400).json({
+          erro: true,
+          mensagem: "Erro: Nenhum usuário encontrado!"
+      });
+  });    
 });
 
 app.get("/usuario/:id", (req, res) => {
