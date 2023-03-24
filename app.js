@@ -166,7 +166,7 @@ app.post('/login', async (req, res) => {
   });
   }
 
- const token = jwt.sign({id: user.id}, process.env.SECRET, {
+ const token = jwt.sign({id: user.id, /*levelAccess: 1*/}, process.env.SECRET, {
    // expiresIn: 600 //10 min
     expiresIn: '7d'
   })
@@ -177,6 +177,24 @@ app.post('/login', async (req, res) => {
     token
 });
 });
+
+//8ª rota - validar o token
+app.get("/val-token", eAdmin, async (req,res) => {
+    await User.findByPk(req.userId, {attributes: ['id', 'name', 'email']})
+    .then((user) => {
+      return res.json({
+        erro: false,
+        user
+       // mensagem: "Token válido! Id do usuário: " + req.userId + ". Nível de acesso: " + req.levelAccess
+      })
+    }).catch(() => {
+      return res.status(400).json({
+        erro: true,
+        mensagem: "Erro: Necessário realizar o login para acessar a página!"
+      });
+
+    });
+  })
 
 
 //inicia um servidor web na porta 3000 p acessar digite essa url 
