@@ -128,6 +128,35 @@ app.put("/user-senha", async (req, res) => {
   });
 });
 
+//7ª rota - login de um usuário
+app.post('/login', async (req, res) => {
+  const user = await User.findOne({
+    attributes:['id', 'password', 'email', 'name'], 
+    where: {email: req.body.email}
+  });
+  if(user === null){
+    return res.status(400).json({
+      erro: true,
+      mensagem: "Erro: Usuário não encontrado!"
+  });
+  }
+
+  if(!(await bcrypt.compare(req.body.password, user.password))){
+    return res.status(400).json({
+      erro: true,
+      mensagem: "Erro: Senha inválida!"
+  });
+  }
+
+
+  return res.json({
+    erro: false,
+    mensagem: "Login realizado com sucesso com sucesso!"
+});
+
+
+});
+
 //inicia um servidor web na porta 3000 p acessar digite essa url 
 //http://localhost:3000 no navegador
 app.listen(3000, () => {
