@@ -38,3 +38,6 @@ Instalar o drive do banco de dados
 
 Instalar o módulo para criptografar a senha
 ### npm install --save bcryptjs
+
+Instalar a dependencia para JWT
+### npm install --save jsonwebtoken
