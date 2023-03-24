@@ -8,12 +8,24 @@ const jwt = require("jsonwebtoken");
 const { eAdmin } = require("./middlewares/auth");
 //importamos o lib que gerencia as variaveis de ambiente
 require('dotenv').config();
+//importamos o cors serve para permitir acesso externo a API
+const cors = require('cors');
 
 
 //importamos a model user, objeto que vamos usar p manipular o banco de dados 
 const User = require("./model/User");
 
 const app = express();
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE");
+  res.header("Access-Control-Allow-Headers", "X-PINGOTHER, Content-Type, Authorization")
+  app.use(cors());
+  next();
+})
+
+
 app.use(express.json());
 
 //rotas que a nossa api vai disponibilizar para um cliente(browser, aplicativo, sistema, etc..)
@@ -143,14 +155,14 @@ app.post('/login', async (req, res) => {
   if(user === null){
     return res.status(400).json({
       erro: true,
-      mensagem: "Erro: Usuário não encontrado!"
+      mensagem: "Erro: Usuário ou senha incorreta!"
   });
   }
 
   if(!(await bcrypt.compare(req.body.password, user.password))){
     return res.status(400).json({
       erro: true,
-      mensagem: "Erro: Senha inválida!"
+      mensagem: "Erro: Usuário ou senha incorreta!"
   });
   }
 
