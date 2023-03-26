@@ -148,6 +148,15 @@ app.put("/user-senha", eAdmin, async (req, res) => {
 
 //7ª rota - login de um usuário
 app.post('/login', async (req, res) => {
+
+    await sleep(3000);
+
+    function sleep(ms) {
+      return new Promise((resolve) => {
+        setTimeout(resolve, ms);
+      });
+    };
+
   const user = await User.findOne({
     attributes:['id', 'password', 'email', 'name'], 
     where: {email: req.body.email}
