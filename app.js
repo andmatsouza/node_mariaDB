@@ -10,6 +10,8 @@ const { eAdmin } = require("./middlewares/auth");
 require('dotenv').config();
 //importamos o cors serve para permitir acesso externo a API
 const cors = require('cors');
+//importamos o yup validar o os dados vindo do front no backend
+const yup = require('yup');
 
 
 //importamos a model user, objeto que vamos usar p manipular o banco de dados 
@@ -32,7 +34,21 @@ app.use(express.json());
 
 //1ª rota - cadastrar um usúario na tabela users
 app.post("/user", eAdmin, async (req, res) => {
-  var dados = req.body;  
+  var dados = req.body;
+  
+  const schema = yup.object({
+      name: yup.string().required(),
+      email: yup.string().email().required(),
+      password: yup.string().required()
+  });
+
+  if(!(await schema.isValid(dados))){
+    return res.status(400).json({
+      erro: true,
+      mensagem: "Erro: Necessário preencher todos os campos!"   
+    });
+  }
+
   dados.password = await bcrypt.hash(dados.password, 8);
 
 await User.create(dados).
@@ -57,7 +73,7 @@ app.get("/users/:page", eAdmin, async (req, res) => {
 
   //se não veio numhum valor no parametro page atribui 1
   const {page = 1} = req.params;
-  const limit = 2;
+  const limit = 40;
   var lastPage = 1;
 
   const countUser = await User.count();
@@ -73,7 +89,7 @@ app.get("/users/:page", eAdmin, async (req, res) => {
 
   await User.findAll({
       attributes: ['id', 'name', 'email', 'password'], 
-      order: [['id', 'ASC']],
+      order: [['id', 'DESC']],
       offset: Number((page * limit) -limit),
       limit: limit
     
@@ -114,7 +130,20 @@ app.get("/user/:id", eAdmin, async (req, res) => {
 
 //4ª rota - atualizar um usúario pelo seu id na tabela users
 app.put("/user", eAdmin, async (req, res) => {
-  const { id } = req.body;  
+  const { id } = req.body;
+  
+  const schema = yup.object({
+    name: yup.string().required(),
+    email: yup.string().email().required(),
+    //password: yup.string().required()
+});
+
+if(!(await schema.isValid(req.body))){
+  return res.status(400).json({
+    erro: true,
+    mensagem: "Erro: Necessário preencher todos os campos!"   
+  });
+}
   
   await User.update(req.body, {where: {id}})
   .then(() => {
