@@ -51,15 +51,39 @@ then(() => {
 });
 
 //2ª rota - listar todos os usúarios na tabela users
-app.get("/users", eAdmin, async (req, res) => {
+app.get("/users/:page", eAdmin, async (req, res) => {
+
+  // Inicio do código de paginação
+
+  //se não veio numhum valor no parametro page atribui 1
+  const {page = 1} = req.params;
+  const limit = 2;
+  var lastPage = 1;
+
+  const countUser = await User.count();
+  if(countUser === null){
+    return res.status(400).json({
+      erro: true,
+      mensagem: "Erro: Nenhum usuário encontrado!"
+  });
+  }else{
+    lastPage = Math.ceil(countUser / limit);
+  }
+  //fim da paginação - OBS: os atributos offset e limit(findAll) fazem parte da paginação
 
   await User.findAll({
       attributes: ['id', 'name', 'email', 'password'], 
-      order: [['id', 'DESC']]})
+      order: [['id', 'ASC']],
+      offset: Number((page * limit) -limit),
+      limit: limit
+    
+    })
   .then((users) => {
       return res.json({
           erro: false,
-          users
+          users,
+          countUser,
+          lastPage
       });
   }).catch(() => {
       return res.status(400).json({
