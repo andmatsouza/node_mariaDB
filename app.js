@@ -178,12 +178,12 @@ app.delete("/user/:id", eAdmin, async (req, res) => {
   .then(() => {
       return res.json({
           erro: false,
-          mensagem: "Usuário apgado com sucesso!"
+          mensagem: "Usuário apagado com sucesso!"
       });
   }).catch(() => {
       return res.status(400).json({
           erro: true,
-          mensagem: "Erro: Usuário não apgado com sucesso!"
+          mensagem: "Erro: Usuário não apagado com sucesso!"
       });
   });
 });
