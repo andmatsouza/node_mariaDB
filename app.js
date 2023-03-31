@@ -336,6 +336,7 @@ app.get("/view-profile", eAdmin, async (req, res) => {
 
 //10ª rota - atualizar o perfil do usúario
 app.put("/edit-profile", eAdmin, async (req, res) => {
+  //pegando o id que vem do token - middlewares - auth - req.userId = decoded.id
   const id = req.userId;
   
   const schema = yup.object({    
@@ -380,6 +381,43 @@ if(user){
       return res.status(400).json({
           erro: true,
           mensagem: "Erro: Perfil não editado com sucesso!"
+      });
+  });
+});
+
+//11ª rota - Editar a senha do perfil
+app.put("/edit-profile-password", eAdmin, async (req, res) => {
+  //pegando o id que vem do token - middlewares - auth - req.userId = decoded.id
+  const id = req.userId;
+  const { password } = req.body;
+  
+  const schema = yup.object({
+    password: yup.string().required("Erro: Necessário preencher o campo senha!")
+                  .min(6, "Erro: A senha deve ter no mínimo 6 caracteres!"),    
+});  
+
+try {
+  await schema.validate(req.body);
+} catch (err) {
+  return res.status(400).json({
+    erro: true,
+    mensagem: err.errors
+  })
+}
+
+  var senhaCrypt= await bcrypt.hash(password, 8);
+  
+  await User.update({password: senhaCrypt}, {where: {id}})
+  .then(() => {
+      return res.json({
+          erro: false,
+          mensagem: "Senha editada com sucesso!"
+      });
+
+  }).catch(() => {
+      return res.status(400).json({
+          erro: true,
+          mensagem: "Erro: Senha não editada com sucesso!"
       });
   });
 });
