@@ -12,6 +12,8 @@ require('dotenv').config();
 const cors = require('cors');
 //importamos o yup validar o os dados vindo do front no backend
 const yup = require('yup');
+//importamos o operador (Op) do sequelizer p usar na clausula where
+const { Op } = require("sequelize");
 
 
 //importamos a model user, objeto que vamos usar p manipular o banco de dados 
@@ -52,6 +54,20 @@ app.post("/user", eAdmin, async (req, res) => {
       erro: true,
       mensagem: err.errors
     })
+  }
+
+  //verifica se o e-mail já está cadastrado no banco
+  const user = await User.findOne({
+    where: {
+      email: req.body.email
+    }   
+  });
+
+  if(user){
+    return res.status(400).json({
+      erro: true,
+      mensagem: "Erro: Este e-mail já está cadastrado!"  
+    });
   }
 
   dados.password = await bcrypt.hash(dados.password, 8);
@@ -153,6 +169,23 @@ try {
     erro: true,
     mensagem: err.errors
   })
+}
+
+//verifica se o e-mail já está cadastrado no banco
+const user = await User.findOne({
+  where: {
+    email: req.body.email,
+    id: {
+      [Op.ne]: id
+    }
+  }   
+});
+
+if(user){
+  return res.status(400).json({
+    erro: true,
+    mensagem: "Erro: Este e-mail já está cadastrado!"  
+  });
 }
   
   await User.update(req.body, {where: {id}})
