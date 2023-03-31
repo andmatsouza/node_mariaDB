@@ -37,16 +37,21 @@ app.post("/user", eAdmin, async (req, res) => {
   var dados = req.body;
   
   const schema = yup.object({
-      name: yup.string().required(),
-      email: yup.string().email().required(),
-      password: yup.string().required()
-  });
+      password: yup.string().required("Erro: Necessário preencher o campo senha!")
+                    .min(6, "Erro: A senha deve ter no mínimo 6 caracteres!"),
+      email: yup.string().email().required("Erro: Necessário preencher o campo email!"),
+      name: yup.string().required("Erro: Necessário preencher o campo nome!"),
+      
+      
+  });  
 
-  if(!(await schema.isValid(dados))){
+  try {
+    await schema.validate(dados);
+  } catch (err) {
     return res.status(400).json({
       erro: true,
-      mensagem: "Erro: Necessário preencher todos os campos!"   
-    });
+      mensagem: err.errors
+    })
   }
 
   dados.password = await bcrypt.hash(dados.password, 8);
@@ -133,16 +138,21 @@ app.put("/user", eAdmin, async (req, res) => {
   const { id } = req.body;
   
   const schema = yup.object({
-    name: yup.string().required(),
-    email: yup.string().email().required(),
-    //password: yup.string().required()
-});
+    //password: yup.string().required("Erro: Necessário preencher o campo senha!")
+                 // .min(6, "Erro: A senha deve ter no mínimo 6 caracteres!"),
+    email: yup.string().email().required("Erro: Necessário preencher o campo email!"),
+    name: yup.string().required("Erro: Necessário preencher o campo nome!"),
+    
+    
+});  
 
-if(!(await schema.isValid(req.body))){
+try {
+  await schema.validate(req.body);
+} catch (err) {
   return res.status(400).json({
     erro: true,
-    mensagem: "Erro: Necessário preencher todos os campos!"   
-  });
+    mensagem: err.errors
+  })
 }
   
   await User.update(req.body, {where: {id}})
