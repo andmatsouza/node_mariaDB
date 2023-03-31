@@ -223,7 +223,21 @@ app.delete("/user/:id", eAdmin, async (req, res) => {
 
 //6ª rota - atualizar a senha do usúario na tabela users
 app.put("/user-senha", eAdmin, async (req, res) => {
-  const { id, password } = req.body;  
+  const { id, password } = req.body;
+  
+  const schema = yup.object({
+    password: yup.string().required("Erro: Necessário preencher o campo senha!")
+                  .min(6, "Erro: A senha deve ter no mínimo 6 caracteres!"),    
+});  
+
+try {
+  await schema.validate(req.body);
+} catch (err) {
+  return res.status(400).json({
+    erro: true,
+    mensagem: err.errors
+  })
+}
 
   var senhaCrypt= await bcrypt.hash(password, 8);
   
