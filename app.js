@@ -315,6 +315,25 @@ app.get("/val-token", eAdmin, async (req,res) => {
     });
   })
 
+//9ª rota - para visualizar o perfil de um usuário
+app.get("/view-profile", eAdmin, async (req, res) => {
+  
+  const id = req.userId;
+  
+  await User.findByPk(id)
+  .then((user) => {
+      return res.json({
+          erro: false,
+          user: user
+      });
+  }).catch(() => {
+      return res.status(400).json({
+          erro: true,
+          mensagem: "Erro: Nenhum usuário encontrado!"
+      });
+  });
+});
+
 
 //inicia um servidor web na porta 3000 p acessar digite essa url 
 //http://localhost:3000 no navegador
