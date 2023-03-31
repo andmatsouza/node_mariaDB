@@ -334,6 +334,56 @@ app.get("/view-profile", eAdmin, async (req, res) => {
   });
 });
 
+//10ª rota - atualizar o perfil do usúario
+app.put("/edit-profile", eAdmin, async (req, res) => {
+  const id = req.userId;
+  
+  const schema = yup.object({    
+    email: yup.string().email().required("Erro: Necessário preencher o campo email!"),
+    name: yup.string().required("Erro: Necessário preencher o campo nome!"),    
+});  
+
+try {
+  await schema.validate(req.body);
+} catch (err) {
+  return res.status(400).json({
+    erro: true,
+    mensagem: err.errors
+  })
+}
+
+//verifica se o e-mail já está cadastrado no banco
+const user = await User.findOne({
+  where: {
+    email: req.body.email,
+    id: {
+      [Op.ne]: id
+    }
+  }   
+});
+
+if(user){
+  return res.status(400).json({
+    erro: true,
+    mensagem: "Erro: Este e-mail já está cadastrado!"  
+  });
+}
+  
+  await User.update(req.body, {where: {id}})
+  .then(() => {
+      return res.json({
+          erro: false,
+          mensagem: "Perfil editado com sucesso!"
+      });
+
+  }).catch(() => {
+      return res.status(400).json({
+          erro: true,
+          mensagem: "Erro: Perfil não editado com sucesso!"
+      });
+  });
+});
+
 
 //inicia um servidor web na porta 3000 p acessar digite essa url 
 //http://localhost:3000 no navegador
