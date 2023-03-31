@@ -422,6 +422,59 @@ try {
   });
 });
 
+//12ª rota - cadastrar um usúario na página de login
+app.post("/add-user-login", async (req, res) => {
+  var dados = req.body;
+  
+  const schema = yup.object({
+      password: yup.string().required("Erro: Necessário preencher o campo senha!")
+                    .min(6, "Erro: A senha deve ter no mínimo 6 caracteres!"),
+      email: yup.string().email().required("Erro: Necessário preencher o campo email!"),
+      name: yup.string().required("Erro: Necessário preencher o campo nome!"),
+      
+      
+  });  
+
+  try {
+    await schema.validate(dados);
+  } catch (err) {
+    return res.status(400).json({
+      erro: true,
+      mensagem: err.errors
+    })
+  }
+
+  //verifica se o e-mail já está cadastrado no banco
+  const user = await User.findOne({
+    where: {
+      email: req.body.email
+    }   
+  });
+
+  if(user){
+    return res.status(400).json({
+      erro: true,
+      mensagem: "Erro: Este e-mail já está cadastrado!"  
+    });
+  }
+
+  dados.password = await bcrypt.hash(dados.password, 8);
+
+await User.create(dados).
+then(() => {
+  return res.json({
+    erro: false,
+    mensagem: "Usuário cadastrado com sucesso!"   
+  });
+
+}).catch(() => {
+  return res.status(400).json({
+    erro: true,
+    mensagem: "Erro: Usuário não cadastrado com sucesso!"   
+  });
+})  
+});
+
 
 //inicia um servidor web na porta 3000 p acessar digite essa url 
 //http://localhost:3000 no navegador
