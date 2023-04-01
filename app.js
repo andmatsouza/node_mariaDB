@@ -569,6 +569,35 @@ app.post("/recover-password", async (req, res) => {
  
 });
 
+//14ª rota - Validar a key e recuperar a senha do usuário
+app.get("/val-key-recover-pass/:key", async (req, res) => {
+
+  const {key} =req.params;
+
+  //verifica se o e-mail já está cadastrado no banco
+  const user = await User.findOne({
+    attributes:['id'], 
+    where: {recover_password: key}
+  });
+
+  if(user === null){
+    return res.status(400).json({
+      erro: true,
+      mensagem: "Erro: Link inválido!"
+  });
+  }
+
+
+
+  return res.json({
+    erro: false,
+    mensagem: "Chave válida!"   
+  });
+ 
+});
+
+
+
 //inicia um servidor web na porta 3000 p acessar digite essa url
 //http://localhost:3000 no navegador
 app.listen(3000, () => {
