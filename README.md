@@ -47,3 +47,6 @@ Gerenciar variáveis de ambiente
 
 Permitir acesso externo a API
 ### npm install --save cors
+
+Módulo para enviar e-mail
+### npm install nodemailer
