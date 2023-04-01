@@ -597,6 +597,46 @@ app.get("/val-key-recover-pass/:key", async (req, res) => {
 });
 
 
+//15ª rota - Atualiza a senha do usuario recuperada
+app.put("/update-password/:key", async (req, res) => {
+  const {key} = req.params;
+  const { password } = req.body;
+
+  const schema = yup.object({
+    password: yup
+      .string()
+      .required("Erro: Necessário preencher o campo senha!")
+      .min(6, "Erro: A senha deve ter no mínimo 6 caracteres!"),
+  });
+
+  try {
+    await schema.validate(req.body);
+  } catch (err) {
+    return res.status(400).json({
+      erro: true,
+      mensagem: err.errors,
+    });
+  }
+
+  var senhaCrypt = await bcrypt.hash(password, 8);
+
+  //password: senhaCrypt, recover_password: null - atualiza a senha e atribui null na coluna recover_password
+  await User.update({ password: senhaCrypt, recover_password: null }, { where: { recover_password: key } })
+    .then(() => {
+      return res.json({
+        erro: false,
+        mensagem: "Senha editada com sucesso!",
+      });
+    })
+    .catch(() => {
+      return res.status(400).json({
+        erro: true,
+        mensagem: "Erro: Senha não editada com sucesso!",
+      });
+    });  
+});
+
+
 
 //inicia um servidor web na porta 3000 p acessar digite essa url
 //http://localhost:3000 no navegador
