@@ -499,73 +499,74 @@ app.post("/add-user-login", async (req, res) => {
 //13ª rota - Recuperar a senha do usuário
 app.post("/recover-password", async (req, res) => {
 
-  var transport = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: process.env.EMAIL_PORT,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
-});
+  var dados = req.body;
 
-var message = {
-  from: "andmatsou@gmail.com",
-  to: "cpaexadm@gmail.com",
-  subject: "Instrução para recuperar a senha",
-  text: `Prezado(a) Anderson.\n\nVocê solicitou alteração de senha.\n\n
-         Para continuar o seu processo de recuperação de senha, clique no link 
-         abaixo ou cole o endereço no seu navegador:\n\nSe você não solicitou
-         essa alteração, nenhuma ação é necessária. Sua senha permanecerá a mesma 
-         até que você ative este código.\n\n`,
-  html: `Prezado(a) Anderson.<br><br>Você solicitou alteração de senha.<br><br>
-         Para continuar o seu processo de recuperação de senha, clique no link 
-         abaixo ou cole o endereço no seu navegador:<br><br>Se você não solicitou
-         essa alteração, nenhuma ação é necessária. Sua senha permanecerá a mesma 
-         até que você ative este código.<br><br>`
-};
-
-await transport.sendMail(message, function(err) {
-  if(err) return res.status(400).json({
-      erro: true,
-      mensagem: "Erro: E-mail não enviado com sucesso!"
-  });
-
-  return res.json({
-    erro: false,
-    mensagem: "E-mail enviado com sucesso!"
-  });
-});
-
-
-  /*const user = await User.findOne({
-    attributes:['id', 'password', 'email', 'name'], 
-    where: {email: req.body.email}
+  //verifica se o e-mail já está cadastrado no banco
+   const user = await User.findOne({
+    attributes:['id', 'email', 'name'], 
+    where: {email: dados.email}
   });
 
   if(user === null){
     return res.status(400).json({
       erro: true,
-      mensagem: "Erro: Usuário ou senha incorreta!"
+      mensagem: "Erro: Usuário não encontrado!"
   });
   }
 
-  if(!(await bcrypt.compare(req.body.password, user.password))){
-    return res.status(400).json({
-      erro: true,
-      mensagem: "Erro: Usuário ou senha incorreta!"
-  });
-  }*/
+  //gerar a chave p usuário recuperar a senha
+  dados.recover_password = (await bcrypt.hash(user.id + user.name + user.email, 8)).replace(/\./g, "").replace(/\//g, "")
 
-  //const token = jwt.sign({id: user.id, /*levelAccess: 1*/}, process.env.SECRET, {
-  // expiresIn: 600 //10 min
-  //  expiresIn: '7d'
-  //})
-
-  /*return res.json({
-    erro: false,
-    mensagem: "Login realizado com sucesso!",
-    token
-});*/
+  await User.update(dados, { where: { id: user.id } })
+    .then(() => {
+      var transport = nodemailer.createTransport({
+        host: process.env.EMAIL_HOST,
+        port: process.env.EMAIL_PORT,
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS
+        }
+      });
+      
+      var message = {
+        from: process.env.EMAIL_FROM_PASS,
+        to: dados.email,
+        subject: "Instrução para recuperar a senha",
+        text: `Prezado(a) Anderson.\n\nVocê solicitou alteração de senha.\n\n
+               Para continuar o seu processo de recuperação de senha, clique no link 
+               abaixo ou cole o endereço no seu navegador: ${dados.url} 
+               ${dados.recover_password} \n\nSe você não solicitou
+               essa alteração, nenhuma ação é necessária. Sua senha permanecerá a mesma 
+               até que você ative este código.\n\n`,
+        // html: `Prezado(a) Anderson.<br><br>Você solicitou alteração de senha.<br><br>
+        //        Para continuar o seu processo de recuperação de senha, clique no link 
+        //        abaixo ou cole o endereço no seu navegador: <a href='${dados.url}
+        //        ${dados.recover_password}'>${dados.url}
+        //        ${dados.recover_password}</a><br><br>Se você não solicitou
+        //        essa alteração, nenhuma ação é necessária. Sua senha permanecerá a mesma 
+        //        até que você ative este código.<br><br>`
+        html: `<a href="${dados.url}${dados.recover_password}">${dados.url}${dados.recover_password}</a>`
+      };
+      
+      transport.sendMail(message, function(err) {
+        if(err) return res.status(400).json({
+            erro: true,
+            mensagem: "Erro: E-mail com instruções para recuperar a senha não enviado, tente novamente!"
+        });
+      
+        return res.json({
+          erro: false,
+          mensagem: "Enviado e-mail com instruções para recuperar a senha. Acesse a sua caixa de e-mail!"
+        });
+      });
+    })
+    .catch(() => {
+      return res.status(400).json({
+        erro: true,
+        mensagem: "Erro: E-mail com instruções para recuperar a senha não enviado, tente novamente!",
+      });
+    });
+ 
 });
 
 //inicia um servidor web na porta 3000 p acessar digite essa url
