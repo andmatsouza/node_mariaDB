@@ -20,7 +20,10 @@ const User = db.define('users', {
   },
   password: {
       type: Sequelize.STRING
-  }
+  },
+  recover_password: {
+    type: Sequelize.STRING
+  },
 });
 
 //função do sequelize usada p criar a tabela no banco de dados
