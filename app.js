@@ -6,6 +6,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 //importamos o módulo para validar o token
 const { eAdmin } = require("./middlewares/auth");
+//
+const upload = require('./middlewares/uploadImgProfile');
 //importamos o lib que gerencia as variaveis de ambiente
 require("dotenv").config();
 //importamos o cors serve para permitir acesso externo a API
@@ -634,6 +636,14 @@ app.put("/update-password/:key", async (req, res) => {
         mensagem: "Erro: Senha não editada com sucesso!",
       });
     });  
+});
+
+//16ª rota - Editar imagem no perfil do usuario
+app.put('/edit-profile-image', eAdmin, upload.single('image'), async (req, res) => {
+  return res.json({
+    erro: false,
+    mensagem: "Imagem editada com sucesso!",
+  });
 });
 
 

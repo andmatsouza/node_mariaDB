@@ -50,3 +50,7 @@ Permitir acesso externo a API
 
 Módulo para enviar e-mail
 ### npm install nodemailer
+
+Multer é middleware node.js para manipulação
+multipart/form-data, usado para o upload de arquivos
+### npm install --save multer
