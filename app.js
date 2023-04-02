@@ -151,11 +151,15 @@ app.get("/user/:id", eAdmin, async (req, res) => {
   //await User.findAll({ where: { id: id } })
   await User.findByPk(id)
     .then((user) => {
-      var endImagem = "http://localhost:3000/files/users/";
+      if(user.image){
+        var endImage = process.env.URL_IMG + "/files/users/" + user.image;
+      }else{
+        var endImage = process.env.URL_IMG + "/files/users/icone_usuario.png";
+      }
       return res.json({
         erro: false,
         user: user,
-        endImagem
+        endImage
       });
     })
     .catch(() => {
@@ -345,10 +349,19 @@ app.get("/view-profile", eAdmin, async (req, res) => {
 
   await User.findByPk(id)
     .then((user) => {
+    
+      if(user.image){
+        var endImage = process.env.URL_IMG + "/files/users/" + user.image;
+      }else{
+        var endImage = process.env.URL_IMG + "/files/users/icone_usuario.png";
+      }
+      
       return res.json({
         erro: false,
         user: user,
+        endImage
       });
+      
     })
     .catch(() => {
       return res.status(400).json({
