@@ -12,6 +12,8 @@ const upload = require('./middlewares/uploadImgProfile');
 require("dotenv").config();
 //importamos o fs do node trabalha com arquivos
 const fs = require('fs');
+//importamos path permitir q outras requisições tenha acesso as imagens
+const path = require('path');
 //importamos o cors serve para permitir acesso externo a API
 const cors = require("cors");
 //importamos o yup validar o os dados vindo do front no backend
@@ -38,6 +40,9 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json());
+
+//permite frontend acessar as imagens no backend
+app.use('/files', express.static(path.resolve(__dirname, "public", "upload")))
 
 //rotas que a nossa api vai disponibilizar para um cliente(browser, aplicativo, sistema, etc..)
 
@@ -146,9 +151,11 @@ app.get("/user/:id", eAdmin, async (req, res) => {
   //await User.findAll({ where: { id: id } })
   await User.findByPk(id)
     .then((user) => {
+      var endImagem = "http://localhost:3000/files/users/";
       return res.json({
         erro: false,
         user: user,
+        endImagem
       });
     })
     .catch(() => {
