@@ -20,8 +20,7 @@ const cors = require("cors");
 const yup = require("yup");
 //importamos o nodemailer permite enviar e-mails
 const nodemailer = require("nodemailer");
-//importamos o operador (Op) do sequelizer p usar na clausula where
-const { Op } = require("sequelize");
+
 
 //importamos a model user, objeto que vamos usar p manipular o banco de dados
 const User = require("./model/User");
@@ -48,10 +47,10 @@ app.use('/files', express.static(path.resolve(__dirname, "public", "upload")))
 
 //rotas que a nossa api vai disponibilizar para um cliente(browser, aplicativo, sistema, etc..)
 
-//1ª rota - cadastrar um usúario na tabela users
+//1ª rota - cadastrar um usúario na tabela users - async e await
 app.post("/user", eAdmin, async (req, res) => {
   var dados = req.body;
-
+  //2º passo - validar os campos enviados pelo formulário usando o yup
   const schema = yup.object({
     password: yup
       .string()
@@ -73,7 +72,7 @@ app.post("/user", eAdmin, async (req, res) => {
     });
   }
 
-  //verifica se o e-mail já está cadastrado no banco
+  //3º passo - verifica se o e-mail já está cadastrado no banco
   const user = await User.findOne({
     where: {
       email: req.body.email,
@@ -86,9 +85,10 @@ app.post("/user", eAdmin, async (req, res) => {
       mensagem: "Erro: Este e-mail já está cadastrado!",
     });
   }
-
+  //4º passo - criptografar a senha usando o bcrypt
   dados.password = await bcrypt.hash(dados.password, 8);
 
+  //1º passo - cadastrar o usuário no banco 
   await User.create(dados)
     .then(() => {
       return res.json({
@@ -124,6 +124,7 @@ app.get("/users/:page", eAdmin, async (req, res) => {
   }
   //fim da paginação - OBS: os atributos offset e limit(findAll) fazem parte da paginação
 
+  //1º passo - retorna todos os registros da tabela users
   await User.findAll({
     attributes: ["id", "name", "email", "password"],
     order: [["id", "DESC"]],
@@ -150,14 +151,17 @@ app.get("/users/:page", eAdmin, async (req, res) => {
 app.get("/user/:id", eAdmin, async (req, res) => {
   const { id } = req.params;
 
+  //1º passo - buscar o usuário na tabela de acordo com o seu id
   //await User.findAll({ where: { id: id } })
   await User.findByPk(id)
     .then((user) => {
+      //comentar mais tarde junto com a ementa do frontend
       if(user.image){
         var endImage = process.env.URL_IMG + "/files/users/" + user.image;
       }else{
         var endImage = process.env.URL_IMG + "/files/users/icone_usuario.png";
       }
+
       return res.json({
         erro: false,
         user: user,
@@ -175,7 +179,7 @@ app.get("/user/:id", eAdmin, async (req, res) => {
 //4ª rota - atualizar um usúario pelo seu id na tabela users
 app.put("/user", eAdmin, async (req, res) => {
   const { id } = req.body;
-
+  //2º passo - validar com o yup
   const schema = yup.object({
     //password: yup.string().required("Erro: Necessário preencher o campo senha!")
     // .min(6, "Erro: A senha deve ter no mínimo 6 caracteres!"),
@@ -195,7 +199,7 @@ app.put("/user", eAdmin, async (req, res) => {
     });
   }
 
-  //verifica se o e-mail já está cadastrado no banco
+  //3º passo - verifica se o e-mail já está cadastrado no banco
   const user = await User.findOne({
     where: {
       email: req.body.email,
@@ -212,6 +216,7 @@ app.put("/user", eAdmin, async (req, res) => {
     });
   }
 
+  //1º passo - atualizar o usuário no banco
   await User.update(req.body, { where: { id } })
     .then(() => {
       return res.json({
@@ -230,7 +235,7 @@ app.put("/user", eAdmin, async (req, res) => {
 //5ª rota - apagar um usúario pelo seu id na tabela users
 app.delete("/user/:id", eAdmin, async (req, res) => {
   const { id } = req.params;
-
+  //1º passo - deletar o usuário
   await User.destroy({ where: { id } })
     .then(() => {
       return res.json({

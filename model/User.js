@@ -36,3 +36,5 @@ const User = db.define('users', {
 
 //exportamos a const User p usarmos em outros módulos
 module.exports = User;
+
+//obs: após criado a model user, importa no arquivo app.js para executar
