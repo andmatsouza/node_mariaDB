@@ -26,6 +26,7 @@ const { Op } = require("sequelize");
 //importamos a model user, objeto que vamos usar p manipular o banco de dados
 const User = require("./model/User");
 
+//exercutamos o express p poder criar as rotas
 const app = express();
 
 app.use((req, res, next) => {
@@ -39,6 +40,7 @@ app.use((req, res, next) => {
   next();
 });
 
+//aceita os dados em formato json
 app.use(express.json());
 
 //permite frontend acessar as imagens no backend
@@ -629,7 +631,6 @@ app.get("/val-key-recover-pass/:key", async (req, res) => {
  
 });
 
-
 //15ª rota - Atualiza a senha do usuario recuperada
 app.put("/update-password/:key", async (req, res) => {
   const {key} = req.params;
@@ -757,7 +758,6 @@ app.put('/edit-user-image/:id', eAdmin, upload.single('image'), async (req, res)
   }
   
 });
-
 
 
 //inicia um servidor web na porta 3000 p acessar digite essa url

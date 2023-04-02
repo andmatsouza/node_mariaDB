@@ -9,7 +9,7 @@ Rodar o projeto usando o nodemon
 
 
 SEQUENCIA PARA CRIAR UM NOVO PROJETO EM NODE
-Criar o arquivo package
+Criar o arquivo package que possui informações sobre o sistema
 ### npm init
 
 Instalar o Express (http://expressjs.com/) Gerencia as requisições, rotas e URLs, entre outra funcionalidades
