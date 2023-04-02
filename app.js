@@ -6,10 +6,12 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 //importamos o módulo para validar o token
 const { eAdmin } = require("./middlewares/auth");
-//
+//importamos o middleware q manipula imagens
 const upload = require('./middlewares/uploadImgProfile');
 //importamos o lib que gerencia as variaveis de ambiente
 require("dotenv").config();
+//importamos o fs do node trabalha com arquivos
+const fs = require('fs');
 //importamos o cors serve para permitir acesso externo a API
 const cors = require("cors");
 //importamos o yup validar o os dados vindo do front no backend
@@ -643,6 +645,22 @@ app.put('/edit-profile-image', eAdmin, upload.single('image'), async (req, res) 
   if(req.file){
     //console.log(req.file);
 
+    await User.findByPk(req.userId)
+    .then(user => {
+        const imgOld = "./public/upload/users/" + user.dataValues.image;
+        //excluir a img antiga do perfil do usuario
+        fs.access(imgOld, (err) => {
+          if(!err){
+            fs.unlink(imgOld, () => {})
+          }
+        });
+    }).catch(() => {
+      return res.json({
+        erro: false,
+        mensagem: "Erro: Perfil não encontrado!",
+      });
+    });
+
     await User.update({image: req.file.filename}, { where: { id: req.userId } })
     .then(() => {
       return res.json({
@@ -656,7 +674,7 @@ app.put('/edit-profile-image', eAdmin, upload.single('image'), async (req, res) 
         mensagem: "Erro: Imagem do perfil não editado com sucesso!",
       });
     });
-        
+
   }else{
     return res.status(400).json({
       erro: false,
