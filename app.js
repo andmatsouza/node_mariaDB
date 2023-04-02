@@ -640,10 +640,30 @@ app.put("/update-password/:key", async (req, res) => {
 
 //16ª rota - Editar imagem no perfil do usuario
 app.put('/edit-profile-image', eAdmin, upload.single('image'), async (req, res) => {
-  return res.json({
-    erro: false,
-    mensagem: "Imagem editada com sucesso!",
-  });
+  if(req.file){
+    //console.log(req.file);
+
+    await User.update({image: req.file.filename}, { where: { id: req.userId } })
+    .then(() => {
+      return res.json({
+        erro: false,
+        mensagem: "Imagem do perfil editado com sucesso!",
+      });
+    })
+    .catch(() => {
+      return res.status(400).json({
+        erro: true,
+        mensagem: "Erro: Imagem do perfil não editado com sucesso!",
+      });
+    });
+        
+  }else{
+    return res.status(400).json({
+      erro: false,
+      mensagem: "Erro: Selecione uma imagem válida JPEG ou PNG!",
+    });
+  }
+  
 });
 
 

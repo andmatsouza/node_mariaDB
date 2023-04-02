@@ -24,6 +24,9 @@ const User = db.define('users', {
   recover_password: {
     type: Sequelize.STRING
   },
+  image: {
+    type: Sequelize.STRING
+  }
 });
 
 //função do sequelize usada p criar a tabela no banco de dados
