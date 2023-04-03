@@ -27,7 +27,7 @@ const User = require("./model/User");
 
 //exercutamos o express p poder criar as rotas
 const app = express();
-
+//liberar permissão para aplicações externas acessarem a API - o cors tb é um middlewares - é executdo antes de qualquer instrução
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE");
@@ -297,18 +297,19 @@ app.post("/login", async (req, res) => {
         setTimeout(resolve, ms);
       });
     };*/
-
+  //1º passo - busca o usuario no banco
   const user = await User.findOne({
     attributes: ["id", "password", "email", "name", "image"],
     where: { email: req.body.email },
   });
+  //se não encontrou o usuário retorna mensagem
   if (user === null) {
     return res.status(400).json({
       erro: true,
       mensagem: "Erro: Usuário ou senha incorreta!",
     });
   }
-
+  //2º passo - comapara a senha q usuario tem no banco com a que esta enviando
   if (!(await bcrypt.compare(req.body.password, user.password))) {
     return res.status(400).json({
       erro: true,
@@ -316,6 +317,10 @@ app.post("/login", async (req, res) => {
     });
   }
 
+  //3º passo - gerar o token
+  //gerando o token e só pode validar o token quem tiver a chave (gerar uma chave única)
+  //api recebe a requisição verifica se a senha é válida e retorna o token para a requisição q solicitou q deve ser salva no localstorage
+  //toda vez q a aplicação fizer uma requisição p rotas privadas deve informar o token q esta armazenado no localstorage.
   const token = jwt.sign(
     { id: user.id /*levelAccess: 1*/ },
     process.env.SECRET,
@@ -325,6 +330,7 @@ app.post("/login", async (req, res) => {
     }
   );
 
+  //comentar junto com o frontend
   const {name, image} = user;
 
   if(user.image){
@@ -341,8 +347,10 @@ app.post("/login", async (req, res) => {
   });
 });
 
-//8ª rota - validar o token
+//8ª rota - validar o token - eAdmin valida o token, porem se o token tem um prazo de validade (ex: 1 hr, se o usuario for excluido durante este periodo
+//a rota verifica se o usuario está cadastrado, caso não ele é redirecionado p o login)
 app.get("/val-token", eAdmin, async (req, res) => {
+  //pode recuperar o id do usuario que foi gerado junto com o token na rota login - recupera em req.userId
   await User.findByPk(req.userId, { attributes: ["id", "name", "email"] })
     .then((user) => {
       return res.json({
