@@ -24,6 +24,7 @@ const nodemailer = require("nodemailer");
 
 //importamos a model user, objeto que vamos usar p manipular o banco de dados
 const User = require("./model/User");
+const { Op } = require("sequelize");
 
 //exercutamos o express p poder criar as rotas
 const app = express();
@@ -297,7 +298,8 @@ app.post("/login", async (req, res) => {
         setTimeout(resolve, ms);
       });
     };*/
-  //1º passo - busca o usuario no banco
+  //1º passo - busca o usuario no banco 
+ //= sql gerado: Select id,password,... from users where email = "andmatsou@gmail.com"
   const user = await User.findOne({
     attributes: ["id", "password", "email", "name", "image"],
     where: { email: req.body.email },
