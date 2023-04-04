@@ -111,7 +111,7 @@ app.get("/users/:page", eAdmin, async (req, res) => {
 
   //se não veio numhum valor no parametro page atribui 1
   const { page = 1 } = req.params;
-  const limit = 40;
+  const limit = 7;
   var lastPage = 1;
 
   const countUser = await User.count();
