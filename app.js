@@ -777,6 +777,6 @@ app.put('/edit-user-image/:id', eAdmin, upload.single('image'), async (req, res)
 
 //inicia um servidor web na porta 3000 p acessar digite essa url
 //http://localhost:3000 no navegador
-app.listen(3000, () => {
-  console.log("Servidor iniciado na porta 3000: http://localhost:3000");
+app.listen(process.env.PORT, () => {
+  console.log(`Servidor iniciado na porta ${process.env.PORT}: http://localhost:${process.env.PORT}`);
 });
